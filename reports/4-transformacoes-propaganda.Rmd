@@ -1,13 +1,15 @@
 ---
 title: "regressao linear multivariada"
 author: "Nazareno Andrade"
-output: 
+output:
+  html_document:
+    df_print: paged
+    toc: yes
   html_notebook:
-    theme: readable
     fig_width: 7
-    toc: true
-    toc_float: true
-
+    theme: readable
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r}
@@ -26,7 +28,7 @@ library(modelr) # devtools::install_github("hadley/modelr")
 # Os dados
 
 ```{r}
-advertising = read_csv("dados/Advertising.csv") %>% 
+advertising = read_csv("../data/Advertising.csv") %>% 
   rename(campaign = X1)
 advertising %>% 
   select(-campaign) %>% 
@@ -77,7 +79,7 @@ d %>%
 
 ## Testando Transformações
 
-`y ~ log(x)` ainda não parece linear, e tem heteroscedasticidade.
+`y ~ log(x)` ainda não parece linear, e tem heteroscedasticidade (a variância do erro residual é diferente para diferentes valores de x).
 
 ```{r}
 advertising %>% 
@@ -85,6 +87,18 @@ advertising %>%
   ggplot(aes(x = TV)) + 
   geom_point(aes(y = Sales)) + 
   ggtitle("y ~ log(x)")
+
+tv.model = lm(Sales ~ log2(TV), data = advertising)
+tidy(tv.model)
+
+adv_augmented = advertising %>% 
+  add_predictions(tv.model) %>% 
+  add_residuals(tv.model)
+
+adv_augmented %>% 
+  ggplot(aes(x = TV)) + 
+  geom_point(aes(y = resid), size = 2) +
+  geom_ref_line(h = 0, colour = "grey80")
 ```
 
 `log(y) ~ log(x)` faz a relação se parecer muito mais com uma relação linear.
@@ -101,7 +115,7 @@ advertising %>%
 ## Usando a relação entre as variáveis transformadas para ajustar um modelo linear
 
 ```{r}
-advertising  = advertising %>% 
+advertising = advertising %>% 
   mutate(TV2 = log2(TV), 
          Sales2 = log2(Sales))
 
@@ -287,14 +301,14 @@ Algumas perguntas que queremos responder:
 # Interações não aditivas
 
 ```{r}
-multi = lm(Saleslog ~ TVlog + Radio + Newspaper + Radio*TVlog + Radio*Newspaper, data = advertising)
+multi = lm(Sales2 ~ TV2 + Radio + Newspaper + Radio*TV2 + Radio*Newspaper, data = advertising)
 
 adv_augmented = advertising %>% 
   add_predictions(multi) %>% 
   add_residuals(multi)
 
 adv_augmented %>% 
-  ggplot(aes(x = TVlog)) + 
+  ggplot(aes(x = TV2)) + 
   geom_point(aes(y = resid))
 
 adv_augmented %>% 
@@ -302,7 +316,7 @@ adv_augmented %>%
   geom_point(aes(y = resid))
 
 adv_augmented %>% 
-  ggplot(aes(x = Radio*TVlog)) + 
+  ggplot(aes(x = Radio*TV2)) + 
   geom_point(aes(y = resid))
 
 
@@ -315,7 +329,7 @@ Qual o intervalo de confiança da estimativa de `Saleslog` para uma certa combin
 
 ```{r}
 predict(multi, 
-        data.frame(Radio = 10e3, TVlog = log2(20e3), Newspaper = 0), 
+        data.frame(Radio = 10e3, TV2 = log2(20e3), Newspaper = 0), 
         interval = "predict")
 
 ```
