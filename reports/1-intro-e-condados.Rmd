@@ -1,20 +1,21 @@
 ---
 title: "Regressão Linear"
 author: "Nazareno Andrade"
-output: 
+output:
+  html_document:
+    df_print: paged
+    toc: yes
   html_notebook:
-    theme: readable
     fig_width: 7
-    toc: true
-    toc_float: true
-
+    theme: readable
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r message=FALSE, warning=FALSE}
 library(openintro) # O dataset é desse pacote
 
 library(tidyverse)
-library(ggbeeswarm)
 library(modelr)
 library(broom)
 theme_set(theme_bw())
@@ -22,11 +23,11 @@ theme_set(theme_bw())
 
 # Nosso objetivo
 
-Até aqui, já conhecemos diferentes formas de sumarizar uma variável com uma estatística (ex: média, mediana, desvio padrão). Conhecemos também uma forma de avaliar a força e a direção da relação entre duas variáveis, com coeficientes de correlação. 
-
-Com regressão, queremos dar os seguintes passos adiante:
-
-   * descrever além da força e da direção de uma relação, sua *forma*. Por exemplo, queremos além de dizer que pessoas mais altas em geral pesam mais, dizer o quanto se espera que uma pessoa pese a mais se ela for 20cm mais alta que outra.   
+    Até aqui, já conhecemos diferentes formas de sumarizar uma variável com uma estatística (ex: média, mediana, desvio padrão). Conhecemos também uma forma de avaliar a força e a direção da relação entre duas variáveis, com coeficientes de correlação. 
+    
+    Com regressão, queremos dar os seguintes passos adiante:
+    
+       * descrever além da força e da direção de uma relação, sua *forma*. Por exemplo, queremos além de dizer que pessoas mais altas em geral pesam mais, dizer o quanto se espera que uma pessoa pese a mais se ela for 20cm mais alta que outra.   
    * descrever a relação entre mais de duas variáveis. Por exemplo, dizer que ao adicionar 1GB de memória a mais em uma VM (máquina virtual) e não mexer no número de vCPUs que ela tem, um servidor web rodando nessa VM conseguirá responder mais 20 req/s e adicionar uma vCPU sem mexer na memória aumenta a taxa de respostas em 40 req/s. 
    
 Para descrever a relação entre as variávies dessa forma, escolheremos uma variável na qual nos interessa entender o efeito das demais. Essa será nossa variável de resposta ou saída, ou variável dependente. As demais são variáveis de entrada, preditores ou variáveis independentes. No exemplo acima, taxa de respostas é a variável de resposta, e número de vCPUs e quantidade de memória da VM são variáveis de entrada, ou preditores, ou variáveis dependentes.
