@@ -1,13 +1,15 @@
 ---
 title: "Regressão Linear"
 author: "Nazareno Andrade"
-output: 
+output:
+  html_document:
+    df_print: paged
+    toc: yes
   html_notebook:
-    theme: readable
     fig_width: 7
-    toc: true
-    toc_float: true
-
+    theme: readable
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r message=FALSE, warning=FALSE}
@@ -27,6 +29,7 @@ lm  == linear model
 ggplot(countyComplete, aes(x = hs_grad, y = poverty)) + 
   geom_point(alpha = 0.4) + 
   geom_smooth(method = "lm", se = FALSE)
+  geom_abline(intercept = 75, slope = -.72, color  = "darkred") # segundo modelo rmd anterior
 ```
 
 
@@ -53,7 +56,50 @@ countyComplete %>%
   ggplot(mapping = aes(x = hs_grad, y = poverty)) + 
   geom_point(alpha = 0.4, size = .1) + 
   geom_line(aes(y = pred), colour = "red")  + 
-  geom_abline(intercept = 75, slope = -.72, color  = "darkblue") 
+  geom_abline(intercept = 75, slope = -.72, color  = "darkblue") # segundo modelo rmd anterior
+```
+
+Calculando o $R^2$ na mão:
+
+```{r}
+usando_media = countyComplete %>% 
+  select(poverty, hs_grad)%>% 
+  mutate(
+    segundo_modelo = mean(poverty), 
+    residuo = poverty - segundo_modelo, 
+    residuo_quad = residuo**2
+  )
+
+fit_media_sst = usando_media %>% summarise(sst = sum(residuo_quad)) %>% pull(sst)
+
+modelo = function(hs_grad, slope, intercept){
+  return(slope * hs_grad + intercept)
+}
+
+nossas_estimativas = countyComplete %>% 
+  select(hs_grad, poverty) %>% 
+  mutate(
+    segundo_modelo = modelo(hs_grad, mod$coefficients[2], mod$coefficients[1]), 
+    residuo = poverty - segundo_modelo, 
+    residuo_quad = residuo**2 # para que fique tudo positivo
+  )
+
+fit_modelo_sse = nossas_estimativas %>% summarise(sse = sum(residuo_quad)) %>% pull(sse)
+
+fit_media_sst
+fit_modelo_sse
+
+```
+
+O $R^2$ é equivalente ao quadrado do coeficiente de correlação de pearson entre as variáveis 
+```{r}
+r2 = (fit_media_sst - fit_modelo_sse)/fit_media_sst
+
+countyComplete %>% 
+  select(hs_grad, poverty) %>% 
+  summarise(pearson = cor(hs_grad, poverty, method = "pearson")) %>%
+  mutate(pearson2 = pearson^2,
+         r2 = r2)
 ```
 
 Resíduos do modelo:
