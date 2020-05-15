@@ -1,13 +1,15 @@
 ---
 title: "Regressão múltipla"
 author: "Nazareno Andrade"
-output: 
+output:
+  html_document:
+    df_print: paged
+    toc: yes
   html_notebook:
-    theme: readable
     fig_width: 7
-    toc: true
-    toc_float: true
-
+    theme: readable
+    toc: yes
+    toc_float: yes
 ---
 
 ```{r message=FALSE, warning=FALSE}
@@ -19,7 +21,7 @@ library(broom)
 theme_set(theme_bw())
 ```
 
-Os dados que usaremos estão detalhados nessa página do [OpenIntro](https://www.openintro.org/stat/data/?data=evals).
+Os dados que usaremos estão detalhados nessa página do [OpenIntro](https://www.openintro.org/data/index.php?data=evals).
 
 ```{r}
 profs = read_csv("https://www.openintro.org/stat/data/evals.csv") %>% 
@@ -45,8 +47,3 @@ profs %>%
     ggplot(aes(x = pic_color, y = score)) + 
     geom_count()
 ```
-
-```{r}
-
-```
-
